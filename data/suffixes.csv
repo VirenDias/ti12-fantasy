@@ -1,0 +1,18 @@
+suffix_name,suffix_desc,suffix_bonus
+the Accomplice,+10% in games where the player has the most assists,10
+of the Ant,+16% in games where the player has the lowest networth,16
+of the Bull,+20% in games where the player buys back before 30 minutes,20
+the Decisive,+20% in games that last less than 25 minutes,20
+the Divine Thief,+25% in games where any player steals a Divine Rapier,25
+the Even-Keeled,+20% in games where the player is tipped 5 or more times,20
+the Flayed Twins Acolyte,+15% if any player gets first blood before the starting horn,15
+the Mule,+20% in games where the player ends the game with items in every slot of their inventory and backpack,20
+the Nothl Pilgrim,+16% if the player has the most deaths in the game,16
+of the Octopus (Inventory),+15% in games where the player ends the game with 4 or more items that have an active ability,15
+of the Octopus (Inventory + Neutral),+15% in games where the player ends the game with 4 or more items that have an active ability,15
+of the Octopus (Inventory + Neutral + Backpack),+15% in games where the player ends the game with 4 or more items that have an active ability,15
+the Pacifist,+16% if the player ends the game with no kills,16
+the Patient,+20% if first blood does not happen until after 10 minutes,20
+of the Raven,+25% if any player gets a rampage,25
+the Tormented,+25% if any player dies to a Tormentor,25
+the Underdog,+15% in games where the player loses,15

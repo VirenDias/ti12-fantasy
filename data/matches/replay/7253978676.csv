@@ -1,0 +1,74 @@
+npc_dota_hero_enigma,modifier_lamp_on,00:17:08.233,add
+npc_dota_hero_enchantress,modifier_lamp_on,00:17:12.233,add
+npc_dota_hero_rubick,modifier_lamp_on,00:17:15.033,add
+npc_dota_hero_meepo,modifier_lamp_on,00:17:29.600,add
+npc_dota_hero_meepo,modifier_lamp_on,00:17:47.800,add
+npc_dota_hero_enchantress,modifier_pluck_famango_channel,00:21:09.000,add
+npc_dota_hero_enchantress,modifier_pluck_famango_channel,00:21:09.033,remove
+npc_dota_hero_enchantress,modifier_pluck_famango_channel,00:21:09.700,add
+npc_dota_hero_enchantress,modifier_pluck_famango_channel,00:21:10.700,remove
+npc_dota_hero_witch_doctor,modifier_pluck_famango_channel,00:21:11.866,add
+npc_dota_hero_witch_doctor,modifier_pluck_famango_channel,00:21:12.866,remove
+npc_dota_hero_techies,modifier_lamp_on,00:22:28.866,add
+npc_dota_hero_enigma,modifier_pluck_famango_channel,00:24:09.866,add
+npc_dota_hero_enigma,modifier_pluck_famango_channel,00:24:10.866,remove
+npc_dota_hero_rubick,modifier_lamp_on,00:24:45.600,add
+npc_dota_hero_meepo,modifier_pluck_famango_channel,00:24:54.366,add
+npc_dota_hero_meepo,modifier_pluck_famango_channel,00:24:55.366,remove
+npc_dota_hero_rubick,modifier_lamp_on,00:25:02.200,add
+npc_dota_hero_techies,modifier_lamp_on,00:25:16.866,add
+npc_dota_hero_techies,modifier_lamp_on,00:25:32.033,add
+npc_dota_hero_meepo,modifier_pluck_famango_channel,00:28:01.200,add
+npc_dota_hero_meepo,modifier_pluck_famango_channel,00:28:02.200,remove
+npc_dota_hero_naga_siren,modifier_pluck_famango_channel,00:32:19.533,add
+npc_dota_hero_naga_siren,modifier_pluck_famango_channel,00:32:21.533,remove
+npc_dota_hero_witch_doctor,modifier_lamp_on,00:33:04.033,add
+npc_dota_hero_naga_siren,modifier_lamp_on,00:34:53.666,add
+npc_dota_hero_techies,modifier_lamp_on,00:36:14.600,add
+npc_dota_hero_meepo,modifier_lamp_on,00:36:49.400,add
+npc_dota_hero_naga_siren (illusion),modifier_lamp_on,00:37:25.500,add
+npc_dota_hero_naga_siren (illusion),modifier_lamp_on,00:37:25.500,add
+npc_dota_hero_naga_siren (illusion),modifier_lamp_on,00:37:25.500,add
+npc_dota_hero_naga_siren (illusion),modifier_lamp_on,00:37:25.500,add
+npc_dota_hero_naga_siren (illusion),modifier_lamp_on,00:37:25.500,add
+npc_dota_hero_naga_siren (illusion),modifier_lamp_on,00:37:25.500,add
+npc_dota_hero_naga_siren (illusion),modifier_lamp_on,00:37:25.500,add
+npc_dota_hero_naga_siren (illusion),modifier_lamp_on,00:37:25.500,add
+npc_dota_hero_witch_doctor,modifier_pluck_famango_channel,00:41:15.033,add
+npc_dota_hero_witch_doctor,modifier_pluck_famango_channel,00:41:18.033,remove
+npc_dota_hero_enchantress,modifier_lamp_on,00:43:21.133,add
+npc_dota_hero_meepo,modifier_lamp_on,00:44:13.867,add
+npc_dota_hero_rubick,modifier_lamp_on,00:45:06.433,add
+npc_dota_hero_enchantress,modifier_pluck_famango_channel,00:46:57.533,add
+npc_dota_hero_enchantress,modifier_pluck_famango_channel,00:46:59.533,remove
+npc_dota_hero_enigma,modifier_lamp_on,00:48:04.600,add
+npc_dota_hero_meepo,modifier_lamp_on,00:48:05.633,add
+npc_dota_hero_meepo,modifier_lamp_on,00:48:05.633,add
+npc_dota_hero_meepo,modifier_lamp_on,00:48:05.633,add
+npc_dota_hero_meepo,modifier_lamp_on,00:48:05.633,add
+npc_dota_hero_meepo,modifier_lamp_on,00:48:05.633,add
+npc_dota_hero_meepo,modifier_lamp_on,00:48:05.633,add
+npc_dota_hero_meepo,modifier_lamp_on,00:48:05.633,add
+npc_dota_hero_meepo,modifier_lamp_on,00:48:05.633,add
+npc_dota_hero_enchantress,modifier_pluck_famango_channel,00:48:14.700,add
+npc_dota_hero_enchantress,modifier_pluck_famango_channel,00:48:20.700,remove
+npc_dota_hero_rubick,modifier_pluck_famango_channel,00:48:29.700,add
+npc_dota_hero_rubick,modifier_pluck_famango_channel,00:48:30.700,remove
+npc_dota_hero_juggernaut,modifier_lamp_on,00:53:09.400,add
+npc_dota_hero_enchantress,modifier_lamp_on,00:53:47.500,add
+npc_dota_hero_naga_siren,modifier_lamp_on,00:54:00.533,add
+npc_dota_hero_techies,modifier_lamp_on,00:54:13.800,add
+npc_dota_hero_techies,modifier_pluck_famango_channel,00:54:24.633,add
+npc_dota_hero_techies,modifier_pluck_famango_channel,00:54:26.633,remove
+npc_dota_hero_meepo,modifier_lamp_on,00:55:06.700,add
+npc_dota_hero_meepo,modifier_lamp_on,00:56:41.133,add
+npc_dota_hero_techies,modifier_lamp_on,00:56:41.500,add
+npc_dota_hero_meepo,modifier_lamp_on,00:57:16.933,add
+npc_dota_hero_juggernaut,modifier_lamp_on,00:58:47.400,add
+npc_dota_hero_juggernaut,modifier_lamp_on,00:58:47.400,add
+npc_dota_hero_juggernaut,modifier_lamp_on,00:58:47.400,add
+npc_dota_hero_juggernaut,modifier_lamp_on,00:58:47.400,add
+npc_dota_hero_juggernaut,modifier_lamp_on,00:58:47.400,add
+npc_dota_hero_juggernaut,modifier_lamp_on,00:58:47.400,add
+npc_dota_hero_juggernaut,modifier_lamp_on,00:58:47.400,add
+npc_dota_hero_juggernaut,modifier_lamp_on,00:58:47.400,add
