@@ -9,7 +9,8 @@ library(googlesheets4)
 
 # Get data
 league_id <- 15728
-players <- get_player_data(league_id)
+teams_elim <- c(7391077, 8244493, 8254400, 8894818)
+players <- get_player_data(league_id) %>% filter(!(team_id %in% teams_elim))
 teams <- get_team_data(league_id)
 top_players <- scan("data/top_players.csv", quiet = TRUE)
 items <- get_item_data()
@@ -96,6 +97,7 @@ for (match in matches_odota) {
       
       # the Divine Thief
       ## +25% in games where any player steals a Divine Rapier
+      ## Check if any player has rapier in inventory and purchase_rapier = 0 or null
       suffix_incids <- suffix_incids %>% 
         add_row(
           !!!base_row,
@@ -103,7 +105,9 @@ for (match in matches_odota) {
           cond = sapply(
             X = match$players, 
             FUN = function(x) { 
-              if (!is.null(x$purchase_rapier)) x$purchase_rapier else 0 
+              (x$item_0 == 133 | x$item_1 == 133 | x$item_2 == 133 | 
+                x$item_3 == 133 | x$item_4 == 133 | x$item_5 == 133) &
+                is.null(x$purchase_rapier)
             }
           ) %>%
             sum() > 0
@@ -120,6 +124,9 @@ for (match in matches_odota) {
           suffix_name = "the Flayed Twins Acolyte",
           cond = match$first_blood_time <= 0
         )
+      
+      # the Loquacious
+      ## +10% in games where the player uses the most voice lines
       
       # the Mule
       ## +20% in games where the player ends the game with items in every slot 
@@ -155,40 +162,7 @@ for (match in matches_odota) {
       suffix_incids <- suffix_incids %>% 
         add_row(
           !!!base_row,
-          suffix_name = "of the Octopus (Inventory)",
-          cond = c(
-            player$item_0, 
-            player$item_1, 
-            player$item_2, 
-            player$item_3,
-            player$item_4,
-            player$item_5
-          ) %in%
-            (items %>% filter(has_active == TRUE) %>% pull(item_id)) %>%
-            sum() >= 4
-        )
-      
-      suffix_incids <- suffix_incids %>% 
-        add_row(
-          !!!base_row,
-          suffix_name = "of the Octopus (Inventory + Neutral)",
-          cond = c(
-            player$item_0, 
-            player$item_1, 
-            player$item_2, 
-            player$item_3,
-            player$item_4,
-            player$item_5,
-            player$item_neutral
-          ) %in%
-            (items %>% filter(has_active == TRUE) %>% pull(item_id)) %>%
-            sum() >= 4
-        )
-      
-      suffix_incids <- suffix_incids %>% 
-        add_row(
-          !!!base_row,
-          suffix_name = "of the Octopus (Inventory + Neutral + Backpack)",
+          suffix_name = "of the Octopus",
           cond = c(
             player$item_0, 
             player$item_1, 

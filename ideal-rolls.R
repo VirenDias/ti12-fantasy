@@ -4,19 +4,13 @@ source("src/get-team-data.R")
 library(tidyverse)
 
 # Get data
-players <- get_player_data(league_id)
+league_id <- 15728
+teams_elim <- c(7391077, 8244493, 8254400, 8894818)
+players <- get_player_data(league_id) %>% filter(!(team_id %in% teams_elim))
 teams <- get_team_data(league_id)
 stats <- read_csv("results/all_stats.csv")
 prefixes <- read_csv("results/all_prefixes.csv")
-suffixes <- read_csv("results/all_suffixes.csv") %>%
-  filter(
-    !(
-      suffix_name %in% c(
-        "of the Octopus (Inventory + Neutral)", 
-        "of the Octopus (Inventory + Neutral + Backpack)"
-      )
-    )
-  )
+suffixes <- read_csv("results/all_suffixes.csv")
 
 # Calculate the player-wise ideal rolls
 ideal_rolls <- data.frame(
@@ -25,6 +19,7 @@ ideal_rolls <- data.frame(
   stat_1 = as.character(),
   stat_2 = as.character(),
   stat_3 = as.character(),
+  stat_4 = as.character(),
   prefix = as.character(),
   suffix = as.character(),
   average = as.numeric(),
@@ -42,12 +37,12 @@ for (player_id in players$player_id) {
         slice_max(order_by = average, n = 2),
       player_stats %>%
         filter(emblem_colour == "Green") %>%
-        slice_max(order_by = average, n = 1)
+        slice_max(order_by = average, n = 2)
     ),
     "Mid" = bind_rows(
       player_stats %>%
         filter(emblem_colour == "Red") %>%
-        slice_max(order_by = average, n = 1),
+        slice_max(order_by = average, n = 2),
       player_stats %>%
         filter(emblem_colour == "Blue") %>%
         slice_max(order_by = average, n = 1),
@@ -61,7 +56,7 @@ for (player_id in players$player_id) {
         slice_max(order_by = average, n = 2),
       player_stats %>%
         filter(emblem_colour == "Green") %>%
-        slice_max(order_by = average, n = 1)
+        slice_max(order_by = average, n = 2)
     )
   )
   
@@ -101,6 +96,11 @@ for (player_id in players$player_id) {
         player_stats %>% slice(3) %>% pull(emblem_colour),
         " - ",
         player_stats %>% slice(3) %>% pull(emblem_stat)
+      ),
+      stat_4 = paste0(
+        player_stats %>% slice(4) %>% pull(emblem_colour),
+        " - ",
+        player_stats %>% slice(4) %>% pull(emblem_stat)
       ),
       prefix = player_prefix$prefix_name,
       suffix = player_suffix$suffix_name,

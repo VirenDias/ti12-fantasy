@@ -207,10 +207,11 @@ get_match_replay_data <- function(match_ids, timeout = 600) {
   
   i <- 1
   for (match in match_odota_data) {
-    bz2_path <- paste0(dir_path, "/", unlist(match$match_id), ".dem.bz2")
-    dem_path <- paste0(dir_path, "/", unlist(match$match_id), ".dem")
-    csv_path <- paste0(dir_path, "/", unlist(match$match_id), ".csv")
-    if (!file.exists(csv_path)) {
+    match_id <- unlist(match$match_id)
+    bz2_path <- paste0(dir_path, "/", match_id, ".dem.bz2")
+    dem_path <- paste0(dir_path, "/", match_id, ".dem")
+    txt_path <- paste0(dir_path, "/", match_id, ".txt")
+    if (!file.exists(txt_path)) {
       message(
         paste0(
           "Retrieving replay data for match ID ",
@@ -252,7 +253,7 @@ get_match_replay_data <- function(match_ids, timeout = 600) {
       system2(
         command = "java",
         args = c("-jar", "utils/fantasy.one-jar.jar", dem_path),
-        stdout = csv_path,
+        stdout = txt_path,
         stderr = FALSE
       )
       invisible(file.remove(dem_path))
@@ -264,18 +265,42 @@ get_match_replay_data <- function(match_ids, timeout = 600) {
   # Read data from disk
   matches <- list()
   for (match_id in match_ids) {
-    file_path <- paste0(dir_path, "/", match_id, ".csv")
-    matches[[as.character(match_id)]] <- read_csv(
-      file = file_path, 
-      col_names = c("hero_name", "mod_name", "mod_time", "mod_type"),
-      col_types = cols(
-        hero_name = col_character(),
-        mod_name = col_character(),
-        mod_time = col_time(format = "%H:%M:%OS"),
-        mod_type = col_character()
-      ),
-      progress = FALSE
-    )
+    raw_data <- read_lines(paste0(dir_path, "/", match_id, ".txt"))
+    
+    matches[[as.character(match_id)]]$neutral_tokens_found <- raw_data %>%
+      .[grepl("^Neutral Tokens Found", .)] %>% 
+      as_tibble_col("all") %>%
+      separate(
+        all, 
+        into = c("emblem_stat", "player_slot", "item_name"), 
+        sep = ","
+      )
+    matches[[as.character(match_id)]]$watchers_taken <- raw_data %>%
+      .[grepl("^Watchers Taken", .)] %>% 
+      as_tibble_col("all") %>%
+      separate(
+        all, 
+        into = c("emblem_stat", "hero_name"), 
+        sep = ","
+      )
+    matches[[as.character(match_id)]]$lotuses_grabbed <- raw_data %>%
+      .[grepl("^Lotuses Grabbed", .)] %>% 
+      as_tibble_col("all") %>%
+      separate(
+        all, 
+        into = c("emblem_stat", "hero_name", "action", "time"), 
+        sep = ","
+      ) %>%
+      mutate(time = parse_time(time, format = "%H:%M:%OS"))
+    matches[[as.character(match_id)]]$tormentor_kills <- raw_data %>%
+      .[grepl("^Tormentor Kills", .)] %>% 
+      as_tibble_col("all") %>%
+      separate(
+        all, 
+        into = c("emblem_stat", "source", "target", "action", "time"), 
+        sep = ","
+      ) %>%
+      mutate(time = parse_time(time, format = "%H:%M:%OS")) 
   }
   
   return(matches)

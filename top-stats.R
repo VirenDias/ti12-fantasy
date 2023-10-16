@@ -9,7 +9,8 @@ library(googlesheets4)
 
 # Get data
 league_id <- 15728
-players <- get_player_data(league_id)
+teams_elim <- c(7391077, 8244493, 8254400, 8894818)
+players <- get_player_data(league_id) %>% filter(!(team_id %in% teams_elim))
 teams <- get_team_data(league_id)
 heroes <- get_hero_data() %>% select(hero_id, hero_name)
 
@@ -36,49 +37,67 @@ i <- 1
 for (match_id in match_ids) {
   print(i)
   odota_data <- matches_odota[[as.character(match_id)]]
-  replay_data <- right_join(
-    heroes,
-    matches_replay[[as.character(match_id)]],
-    by = "hero_name"
+  replay_data <- matches_replay[[as.character(match_id)]]
+  
+  hero_team <- lapply(
+    X = odota_data$players, 
+    FUN = function(x) {
+      data.frame(hero_id = x$hero_id, team = as.numeric(x$isRadiant))
+    }
   ) %>%
-    distinct()
+    bind_rows() %>%
+    left_join(heroes, by = "hero_id") %>%
+    select(hero_id, hero_name, team)
   
-  duration <- odota_data$objectives[[length(odota_data$objectives)]]$time
-  neutrals <- data.frame(
-    player_id = as.numeric(),
-    is_radiant = as.logical(),
-    kills = as.numeric()
-  )
-  for (player in odota_data$players) {
-    neutrals <- neutrals %>%
-      add_row(
-        player_id = player$account_id,
-        is_radiant = player$isRadiant,
-        kills = player$neutral_kills
-      )
-  }
-  neutrals <- neutrals %>%
-    group_by(is_radiant) %>%
-    mutate(perc_kills = kills / sum(kills)) %>%
-    ungroup() %>%
-    mutate(
-      tokens_available = if (duration > 63*60) {
-        25
-      } else if (duration > 40*60) {
-        20
-      } else if (duration > 30*60) {
-        15
-      } else if (duration > 20*60) {
-        10
-      } else if (duration > 10*60) {
-        5
-      } else {
-        0
-      },
-      tokens = perc_kills * tokens_available
+  replay_data <- list(
+    "neutral_tokens_found" = replay_data$neutral_tokens_found %>%
+      rowwise() %>%
+      mutate(player_slot = as.numeric(player_slot) / 2 + 1) %>%
+      mutate(player_id = odota_data$players[[player_slot]]$account_id) %>%
+      ungroup() %>%
+      select(emblem_stat, player_id),
+    "watchers_taken" = left_join(
+      replay_data$watchers_taken,
+      heroes,
+      by = "hero_name"
     ) %>%
-    select(player_id, tokens)
-  
+      select(emblem_stat, hero_id),
+    "lotuses_grabbed" = left_join(
+      replay_data$lotuses_grabbed,
+      heroes,
+      by = "hero_name"
+    ) %>%
+      select(emblem_stat, hero_id, action, time),
+    "tormentor_kills" = if (replay_data$tormentor_kills %>%
+                            filter(action == "kill") %>% nrow() == 0) {
+      data.frame(
+        emblem_stat = as.character(),
+        hero_id = as.numeric()
+      )
+    } else {
+      lapply(
+        1:nrow(filter(replay_data$tormentor_kills, action == "kill")),
+        function(x) {
+          kill <- filter(replay_data$tormentor_kills, action == "kill") %>% 
+            slice(x)
+          
+          replay_data$tormentor_kills %>%
+            filter(time >= (kill$time - 17), time <= kill$time) %>%
+            left_join(hero_team, by = join_by(source == hero_name)) %>%
+            rename(source_hero_id = hero_id, source_team = team) %>%
+            left_join(hero_team, by = join_by(target == hero_name)) %>%
+            rename(target_hero_id = hero_id, target_team = team) %>%
+            filter(
+              target == "npc_dota_miniboss" |
+                (target == kill$source & source_team == target_team)
+            ) %>%
+            select(emblem_stat, hero_id = source_hero_id) %>%
+            distinct()
+        }
+      ) %>%
+        bind_rows()
+    }
+  )
   
   for (player in odota_data$players) {
     if (player$account_id %in% players$player_id) {
@@ -129,7 +148,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Red",
           emblem_stat = "Neutral Tokens Found",
-          points = filter(neutrals, player_id == player$account_id)$tokens * 350
+          points = replay_data$neutral_tokens_found %>%
+            filter(player_id == player$account_id) %>%
+            nrow() * 350
         )
       
       ## Tower Kills
@@ -174,11 +195,8 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Blue",
           emblem_stat = "Watchers Taken",
-          points = replay_data %>%
-            filter(
-              hero_id == player$hero_id, 
-              mod_name == "modifier_lamp_on"
-            ) %>%
+          points = replay_data$watchers_taken %>%
+            filter(hero_id == player$hero_id) %>%
             nrow() * 235
         )
       
@@ -197,17 +215,12 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Blue",
           emblem_stat = "Lotuses Grabbed",
-          points = replay_data %>%
-            filter(
-              hero_id == player$hero_id, 
-              mod_name == "modifier_pluck_famango_channel"
-            ) %>%
-            arrange(mod_time) %>%
-            mutate(
-              mod_duration = as.integer(mod_time - lag(mod_time, n = 1))
-            ) %>%
-            filter(mod_type == "remove") %>%
-            pull(mod_duration) %>%
+          points = replay_data$lotuses_grabbed %>%
+            filter(hero_id == player$hero_id) %>%
+            arrange(time) %>%
+            mutate(duration = as.integer(time - lag(time, n = 1))) %>%
+            filter(action == "end") %>%
+            pull(duration) %>%
             sum() * 240
         )
       
@@ -244,11 +257,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Green",
           emblem_stat = "Tormentor Kills",
-          points = if(is.null(player$killed$npc_dota_miniboss)) {
-            0 
-          } else {
-            player$killed$npc_dota_miniboss * 875
-          }
+          points = replay_data$tormentor_kills %>%
+            filter(hero_id == player$hero_id) %>%
+            nrow() * 875
         )
       
       # First Blood
@@ -272,7 +283,7 @@ for (match_id in match_ids) {
   }
   
   i <- i + 1
-  rm(player, match_id, odota_data, replay_data, duration, neutrals, base_row)
+  rm(player, match_id, odota_data, replay_data, hero_team, base_row)
 }
 
 # Calculate player-wise top stats

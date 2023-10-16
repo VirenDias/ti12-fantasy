@@ -9,7 +9,8 @@ library(googlesheets4)
 
 # Get data
 league_id <- 15728
-players <- get_player_data(league_id)
+teams_elim <- c(7391077, 8244493, 8254400, 8894818)
+players <- get_player_data(league_id) %>% filter(!(team_id %in% teams_elim))
 teams <- get_team_data(league_id)
 top_players <- scan("data/top_players.csv", quiet = TRUE)
 heroes <- get_hero_data()
@@ -75,7 +76,7 @@ for (match in matches_odota) {
       )
       
       # Balanced
-      ## +13% when playing a Universal Hero,13
+      ## +13% when playing a Universal Hero
       prefix_incids <- prefix_incids %>%
         add_row(
           !!!base_row,
