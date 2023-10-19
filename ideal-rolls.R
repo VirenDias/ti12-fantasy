@@ -26,7 +26,9 @@ ideal_rolls <- data.frame(
   stddev = as.numeric()
 )
 for (player_id in players$player_id) {
-  player_role <- players %>% filter(player_id == !!player_id) %>% pull(player_role)
+  player_role <- players %>% 
+    filter(player_id == !!player_id) %>%
+    pull(player_role)
   player_stats <- stats %>% filter(player_id == !!player_id)
   
   player_stats <- switch (
@@ -34,39 +36,39 @@ for (player_id in players$player_id) {
     "Core" = bind_rows(
       player_stats %>%
         filter(emblem_colour == "Red") %>%
-        slice_max(order_by = average, n = 2),
+        slice_max(order_by = average, n = 2, with_ties = FALSE),
       player_stats %>%
         filter(emblem_colour == "Green") %>%
-        slice_max(order_by = average, n = 2)
+        slice_max(order_by = average, n = 2, with_ties = FALSE)
     ),
     "Mid" = bind_rows(
       player_stats %>%
         filter(emblem_colour == "Red") %>%
-        slice_max(order_by = average, n = 2),
+        slice_max(order_by = average, n = 2, with_ties = FALSE),
       player_stats %>%
         filter(emblem_colour == "Blue") %>%
-        slice_max(order_by = average, n = 1),
+        slice_max(order_by = average, n = 1, with_ties = FALSE),
       player_stats %>%
         filter(emblem_colour == "Green") %>%
-        slice_max(order_by = average, n = 1)
+        slice_max(order_by = average, n = 1, with_ties = FALSE)
     ),
     "Support" = bind_rows(
       player_stats %>%
         filter(emblem_colour == "Blue") %>%
-        slice_max(order_by = average, n = 2),
+        slice_max(order_by = average, n = 2, with_ties = FALSE),
       player_stats %>%
         filter(emblem_colour == "Green") %>%
-        slice_max(order_by = average, n = 2)
+        slice_max(order_by = average, n = 2, with_ties = FALSE)
     )
   )
   
   player_prefix <- prefixes %>%
     filter(player_id == !!player_id) %>%
-    slice_max(order_by = effective_bonus, n = 1) %>%
+    slice_max(order_by = effective_bonus, n = 1, with_ties = FALSE) %>%
     transmute(player_id, prefix_name, prefix_bonus = effective_bonus)
   player_suffix <- suffixes %>%
     filter(player_id == !!player_id) %>%
-    slice_max(order_by = effective_bonus, n = 1) %>%
+    slice_max(order_by = effective_bonus, n = 1, with_ties = FALSE) %>%
     transmute(player_id, suffix_name, suffix_bonus = effective_bonus)
   
   player_totals <- player_stats %>%
