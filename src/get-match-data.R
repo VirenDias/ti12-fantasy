@@ -140,6 +140,7 @@ get_match_stratz_data <- function(match_ids, token = NULL) {
   for (match_id in match_ids) {
     file_path <- paste0(dir_path, "/", match_id, ".json")
     if (!file.exists(file_path)) {
+      if (is.null(token)) stop("Stratz API token not set")
       message(
         paste0(
           "Retrieving Stratz data for match ID ",
