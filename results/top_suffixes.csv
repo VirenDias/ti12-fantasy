@@ -11,6 +11,7 @@ Core,the Nothl Pilgrim,+16% if the player has the most deaths in the game,0.0401
 Core,the Mule,+20% in games where the player ends the game with items in every slot of their inventory and backpack,0.019047240701249933,0.3809448140249987,0.015638519544873393,0.31277039089746783
 Core,of the Bull,+20% in games where the player buys back before 30 minutes,0.014095799538327085,0.2819159907665417,0.011230912088554486,0.22461824177108972
 Core,the Accomplice,+10% in games where the player has the most assists,0.05072413008955467,0.5072413008955466,0.007819901775560308,0.07819901775560308
+Core,the Even-Keeled,+20% in games where the player is tipped 5 or more times,0.004432464659388712,0.08864929318777423,0.001978431928818709,0.03956863857637418
 Core,of the Ant,+16% in games where the player has the lowest networth,4.801386773016287e-4,0.007682218836826059,0,0
 Core,the Patient,+20% if first blood does not happen until after 10 minutes,0,0,0,0
 Mid,of the Octopus,+15% in games where the player ends the game with 4 or more items that have an active ability,0.8085801387553777,12.128702081330665,0.8445447549744425,12.668171324616637
@@ -26,6 +27,7 @@ Mid,the Pacifist,+16% if the player ends the game with no kills,0.01570771760266
 Mid,of the Bull,+20% in games where the player buys back before 30 minutes,0.017002900084166113,0.34005800168332223,0.012646811384912427,0.25293622769824853
 Mid,the Nothl Pilgrim,+16% if the player has the most deaths in the game,0.05126117882829302,0.8201788612526884,0.011893190763906604,0.19029105222250567
 Mid,of the Ant,+16% in games where the player has the lowest networth,0,0,0,0
+Mid,the Even-Keeled,+20% in games where the player is tipped 5 or more times,9.686212007045123e-4,0.019372424014090246,0,0
 Mid,the Patient,+20% if first blood does not happen until after 10 minutes,0,0,0,0
 Support,of the Octopus,+15% in games where the player ends the game with 4 or more items that have an active ability,0.5014026363058347,7.521039544587521,0.4808892955705051,7.213339433557576
 Support,the Underdog,+15% in games where the player loses,0.45667124854682106,6.850068728202316,0.41910497871490976,6.286574680723646
@@ -40,4 +42,5 @@ Support,the Pacifist,+16% if the player ends the game with no kills,0.0790005872
 Support,the Decisive,+20% in games that last less than 25 minutes,0.05205837612096864,1.0411675224193728,0.04833613479536221,0.9667226959072441
 Support,the Mule,+20% in games where the player ends the game with items in every slot of their inventory and backpack,0.0469274901218967,0.9385498024379341,0.044098422368739613,0.8819684473747923
 Support,the Divine Thief,+25% in games where any player steals a Divine Rapier,0.03431224641283067,0.8578061603207667,0.033049704684263013,0.8262426171065753
+Support,the Even-Keeled,+20% in games where the player is tipped 5 or more times,0.0011512912840474425,0.02302582568094885,0.0015061102461928397,0.030122204923856796
 Support,the Patient,+20% if first blood does not happen until after 10 minutes,0,0,0,0

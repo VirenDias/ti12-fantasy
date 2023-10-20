@@ -158,8 +158,15 @@ get_match_stratz_data <- function(match_ids, token = NULL) {
         query = paste0("{
             match(id: ", match_id, ") {
               startDateTime
+              chatEvents {
+                type
+                fromHeroId
+                toHeroId
+                value
+              }
               players {
                 steamAccountId
+                heroId
                 dotaPlus {
                   level
                 }

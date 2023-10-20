@@ -23,6 +23,7 @@ match_ids_blacklist <- scan(
 )
 match_ids <- setdiff(match_ids, match_ids_blacklist)
 matches_odota <- get_match_odota_data(match_ids)
+matches_stratz <- get_match_stratz_data(match_ids)
 
 # Calculate suffix incidences
 suffix_incids <- data.frame(
@@ -106,15 +107,12 @@ for (match in matches_odota) {
             X = match$players, 
             FUN = function(x) { 
               (x$item_0 == 133 | x$item_1 == 133 | x$item_2 == 133 | 
-                x$item_3 == 133 | x$item_4 == 133 | x$item_5 == 133) &
+                 x$item_3 == 133 | x$item_4 == 133 | x$item_5 == 133) &
                 is.null(x$purchase_rapier)
             }
           ) %>%
             sum() > 0
         )
-      
-      # the Even-Keeled
-      ## +20% in games where the player is tipped 5 or more times
       
       # the Flayed Twins Acolyte
       ## +15% if any player gets first blood before the starting horn
@@ -238,6 +236,47 @@ for (match in matches_odota) {
           !!!base_row,
           suffix_name = "the Underdog",
           cond = player$lose == 1
+        )
+    }
+  }
+  
+  i <- i + 1
+  rm(match, player, base_row)
+}
+
+i <- 1
+for (match in matches_stratz) {
+  print(i)
+  tips <- if (length(match$match$chatEvents) == 0) {
+    NULL
+  } else {
+    match$match$chatEvents %>%
+      lapply(function(x) {
+        x[lengths(x) == 0] <- NA
+        return(x)
+      }) %>% 
+      bind_rows() %>%
+      filter(type == 1000)
+  }
+  
+  for (player in match$match$players) {
+    if (player$steamAccountId %in% players$player_id) {
+      base_row <- list2(
+        player_id = player$steamAccountId,
+        time = match$match$startDateTime,
+      )
+      
+      # the Even-Keeled
+      ## +20% in games where the player is tipped 5 or more times
+      suffix_incids <- suffix_incids %>%
+        add_row(
+          !!!base_row,
+          suffix_name = "the Even-Keeled",
+          cond = if (is.null(tips)) {
+            FALSE
+          } else {
+            tips %>% filter(toHeroId == player$heroId) %>% nrow() >= 5
+          }
         )
     }
   }

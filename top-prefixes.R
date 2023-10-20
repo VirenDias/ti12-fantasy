@@ -66,8 +66,9 @@ for (match in matches_odota) {
   picks <- if (is.null(unlist(match$picks_bans))) {
     NULL
   } else {
-    do.call(bind_rows, match$picks_bans) %>% filter(is_pick == TRUE)
+    match$picks_bans %>% bind_rows() %>% filter(is_pick == TRUE)
   }
+  
   for (player in match$players) {
     if (player$account_id %in% players$player_id) {
       base_row <- list2(
