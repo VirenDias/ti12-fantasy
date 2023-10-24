@@ -9,18 +9,17 @@ library(googlesheets4)
 
 # Get data
 league_id <- 15728
-teams_elim <- c(7391077, 8244493, 8254400, 8894818)
+teams_elim <- scan("data/teams_elim.csv", quiet = TRUE)
 players <- get_player_data(league_id) %>% filter(!(team_id %in% teams_elim))
 teams <- get_team_data(league_id)
 heroes <- get_hero_data() %>% select(hero_id, hero_name)
 
-match_ids <- get_match_ids(league_id)
-match_ids_blacklist <- scan(
-  "data/matches/match_ids_blacklist.csv", 
+match_ids <- get_match_ids(players$player_id)
+match_ids_black <- scan(
+  "data/matches/match_ids_black.csv", 
   quiet = TRUE
 )
-match_ids <- setdiff(match_ids, match_ids_blacklist)
-
+match_ids <- setdiff(match_ids, match_ids_black)
 matches_odota <- get_match_odota_data(match_ids)
 matches_replay <- get_match_replay_data(match_ids)
 
@@ -39,70 +38,10 @@ for (match_id in match_ids) {
   odota_data <- matches_odota[[as.character(match_id)]]
   replay_data <- matches_replay[[as.character(match_id)]]
   
-  hero_team <- lapply(
-    X = odota_data$players, 
-    FUN = function(x) {
-      data.frame(hero_id = x$hero_id, team = as.numeric(x$isRadiant))
-    }
-  ) %>%
-    bind_rows() %>%
-    left_join(heroes, by = "hero_id") %>%
-    select(hero_id, hero_name, team)
-  
-  replay_data <- list(
-    "neutral_tokens_found" = replay_data$neutral_tokens_found %>%
-      rowwise() %>%
-      mutate(player_slot = as.numeric(player_slot) / 2 + 1) %>%
-      mutate(player_id = odota_data$players[[player_slot]]$account_id) %>%
-      ungroup() %>%
-      select(emblem_stat, player_id),
-    "watchers_taken" = left_join(
-      replay_data$watchers_taken,
-      heroes,
-      by = "hero_name"
-    ) %>%
-      select(emblem_stat, hero_id),
-    "lotuses_grabbed" = left_join(
-      replay_data$lotuses_grabbed,
-      heroes,
-      by = "hero_name"
-    ) %>%
-      select(emblem_stat, hero_id, action, time),
-    "tormentor_kills" = if (replay_data$tormentor_kills %>%
-                            filter(action == "kill") %>% nrow() == 0) {
-      data.frame(
-        emblem_stat = as.character(),
-        hero_id = as.numeric()
-      )
-    } else {
-      lapply(
-        1:nrow(filter(replay_data$tormentor_kills, action == "kill")),
-        function(x) {
-          kill <- filter(replay_data$tormentor_kills, action == "kill") %>% 
-            slice(x)
-          
-          replay_data$tormentor_kills %>%
-            filter(time >= (kill$time - 17), time <= kill$time) %>%
-            left_join(hero_team, by = join_by(source == hero_name)) %>%
-            rename(source_hero_id = hero_id, source_team = team) %>%
-            left_join(hero_team, by = join_by(target == hero_name)) %>%
-            rename(target_hero_id = hero_id, target_team = team) %>%
-            filter(
-              target == "npc_dota_miniboss" |
-                (target == kill$source & source_team == target_team)
-            ) %>%
-            select(emblem_stat, hero_id = source_hero_id) %>%
-            distinct()
-        }
-      ) %>%
-        bind_rows()
-    }
-  )
-  
-  for (player in odota_data$players) {
-    if (player$account_id %in% players$player_id) {
+  for (player_id in replay_data$player_id) {
+    if (player_id %in% players$player_id) {
       base_row <- list2(
-        player_id = player$account_id,
+        player_id = player_id,
         time = odota_data$start_time,
       )
       
@@ -112,7 +51,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Red",
           emblem_stat = "Kills",
-          points = player$kills * 125
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(kills) * 125
         ) 
       
       ## Deaths
@@ -121,7 +62,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Red",
           emblem_stat = "Deaths",
-          points = 2600 - (player$deaths * 260)
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(deaths) * -260 + 2600
         )
       
       ## Creep Score
@@ -130,7 +73,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Red",
           emblem_stat = "Creep Score",
-          points = (player$last_hits + player$denies) * 3
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(creep_score) * 3
         )
       
       ## GPM
@@ -139,7 +84,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Red",
           emblem_stat = "GPM",
-          points = player$gold_per_min * 2
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(gpm) * 2
         )
       
       ## Neutral Tokens Found
@@ -148,9 +95,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Red",
           emblem_stat = "Neutral Tokens Found",
-          points = replay_data$neutral_tokens_found %>%
-            filter(player_id == player$account_id) %>%
-            nrow() * 350
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(neutral_tokens_found) * 350
         )
       
       ## Tower Kills
@@ -159,7 +106,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Red",
           emblem_stat = "Tower Kills",
-          points = player$towers_killed * 325
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(tower_kills) * 325
         )
       
       ## Wards Placed
@@ -168,7 +117,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Blue",
           emblem_stat = "Wards Placed",
-          points = player$obs_placed * 145
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(wards_placed) * 145
         )
       
       ## Camps Stacked
@@ -177,7 +128,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Blue",
           emblem_stat = "Camps Stacked",
-          points = player$camps_stacked * 225
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(camps_stacked) * 225
         )
       
       ## Runes Grabbed
@@ -186,7 +139,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Blue",
           emblem_stat = "Runes Grabbed",
-          points = player$rune_pickups * 105
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(runes_grabbed) * 105
         )
       
       ## Watchers Taken
@@ -195,9 +150,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Blue",
           emblem_stat = "Watchers Taken",
-          points = replay_data$watchers_taken %>%
-            filter(hero_id == player$hero_id) %>%
-            nrow() * 235
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(watchers_taken) * 235
         )
       
       ## Smokes Used
@@ -206,7 +161,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Blue",
           emblem_stat = "Smokes Used",
-          points = sum(player$item_uses$smoke_of_deceit) * 390
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(smokes_used) * 390
         )
       
       ## Lotuses Grabbed
@@ -215,13 +172,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Blue",
           emblem_stat = "Lotuses Grabbed",
-          points = replay_data$lotuses_grabbed %>%
-            filter(hero_id == player$hero_id) %>%
-            arrange(time) %>%
-            mutate(duration = as.integer(time - lag(time, n = 1))) %>%
-            filter(action == "end") %>%
-            pull(duration) %>%
-            sum() * 240
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(lotuses_grabbed) * 240
         )
       
       ## Roshan Kills
@@ -230,7 +183,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Green",
           emblem_stat = "Roshan Kills",
-          points = player$roshans_killed * 890
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(roshan_kills) * 890
         )
       
       ## Teamfight Participation
@@ -239,7 +194,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Green",
           emblem_stat = "Teamfight Participation",
-          points = player$teamfight_participation * 1835
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(teamfight_participation) * 1835
         )
       
       ## Stuns
@@ -248,7 +205,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Green",
           emblem_stat = "Stuns",
-          points = player$stuns * 20
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(stuns) * 20
         )
       
       ## Tormentor Kills
@@ -257,9 +216,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Green",
           emblem_stat = "Tormentor Kills",
-          points = replay_data$tormentor_kills %>%
-            filter(hero_id == player$hero_id) %>%
-            nrow() * 875
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(tormentor_kills) * 875
         )
       
       # First Blood
@@ -268,7 +227,9 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Green",
           emblem_stat = "First Blood",
-          points = player$firstblood_claimed * 2000
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(first_blood) * 2000
         )
       
       ## Courier Kills
@@ -277,13 +238,15 @@ for (match_id in match_ids) {
           !!!base_row,
           emblem_colour = "Green",
           emblem_stat = "Courier Kills",
-          points = player$courier_kills * 855
+          points = replay_data %>%
+            filter(player_id == !!player_id) %>%
+            pull(courier_kills) * 855
         )
     }
   }
   
   i <- i + 1
-  rm(player, match_id, odota_data, replay_data, hero_team, base_row)
+  rm(match_id, player_id, odota_data, replay_data, base_row)
 }
 
 # Calculate player-wise top stats

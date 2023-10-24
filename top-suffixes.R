@@ -9,7 +9,7 @@ library(googlesheets4)
 
 # Get data
 league_id <- 15728
-teams_elim <- c(7391077, 8244493, 8254400, 8894818)
+teams_elim <- scan("data/teams_elim.csv", quiet = TRUE)
 players <- get_player_data(league_id) %>% filter(!(team_id %in% teams_elim))
 teams <- get_team_data(league_id)
 top_players <- scan("data/top_players.csv", quiet = TRUE)
@@ -17,11 +17,11 @@ items <- get_item_data()
 suffixes <- read_csv("data/suffixes.csv", show_col_types = FALSE)
 
 match_ids <- get_match_ids(league_id)
-match_ids_blacklist <- scan(
-  "data/matches/match_ids_blacklist.csv", 
+match_ids_black <- scan(
+  "data/matches/match_ids_black.csv", 
   quiet = TRUE
 )
-match_ids <- setdiff(match_ids, match_ids_blacklist)
+match_ids <- setdiff(match_ids, match_ids_black)
 matches_odota <- get_match_odota_data(match_ids)
 matches_stratz <- get_match_stratz_data(match_ids)
 
