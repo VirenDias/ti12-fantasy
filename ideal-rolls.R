@@ -20,6 +20,7 @@ ideal_rolls <- data.frame(
   stat_2 = as.character(),
   stat_3 = as.character(),
   stat_4 = as.character(),
+  stat_5 = as.character(),
   prefix = as.character(),
   suffix = as.character(),
   average = as.numeric(),
@@ -36,7 +37,7 @@ for (player_id in players$player_id) {
     "Core" = bind_rows(
       player_stats %>%
         filter(emblem_colour == "Red") %>%
-        slice_max(order_by = average, n = 2, with_ties = FALSE),
+        slice_max(order_by = average, n = 3, with_ties = FALSE),
       player_stats %>%
         filter(emblem_colour == "Green") %>%
         slice_max(order_by = average, n = 2, with_ties = FALSE)
@@ -50,12 +51,12 @@ for (player_id in players$player_id) {
         slice_max(order_by = average, n = 1, with_ties = FALSE),
       player_stats %>%
         filter(emblem_colour == "Green") %>%
-        slice_max(order_by = average, n = 1, with_ties = FALSE)
+        slice_max(order_by = average, n = 2, with_ties = FALSE)
     ),
     "Support" = bind_rows(
       player_stats %>%
         filter(emblem_colour == "Blue") %>%
-        slice_max(order_by = average, n = 2, with_ties = FALSE),
+        slice_max(order_by = average, n = 3, with_ties = FALSE),
       player_stats %>%
         filter(emblem_colour == "Green") %>%
         slice_max(order_by = average, n = 2, with_ties = FALSE)
@@ -103,6 +104,11 @@ for (player_id in players$player_id) {
         player_stats %>% slice(4) %>% pull(emblem_colour),
         " - ",
         player_stats %>% slice(4) %>% pull(emblem_stat)
+      ),
+      stat_5 = paste0(
+        player_stats %>% slice(5) %>% pull(emblem_colour),
+        " - ",
+        player_stats %>% slice(5) %>% pull(emblem_stat)
       ),
       prefix = player_prefix$prefix_name,
       suffix = player_suffix$suffix_name,
