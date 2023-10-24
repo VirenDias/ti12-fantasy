@@ -140,25 +140,12 @@ for (match in matches_odota) {
       prefix_incids <- prefix_incids %>%
         add_row(
           !!!base_row,
-          prefix_name = "Coveted (Team)",
+          prefix_name = "Coveted",
           cond = if (is.null(picks)) {
-            FALSE
+            NA
           } else {
             picks %>%
               filter(team == filter(picks, hero_id == player$hero_id)$team) %>%
-              slice_max(order_by = order, n = 1) %>%
-              pull(hero_id) == player$hero_id
-          }
-        )
-      
-      prefix_incids <- prefix_incids %>%
-        add_row(
-          !!!base_row,
-          prefix_name = "Coveted (Overall)",
-          cond = if (is.null(picks)) {
-            FALSE
-          } else {
-            picks %>%
               slice_max(order_by = order, n = 1) %>%
               pull(hero_id) == player$hero_id
           }
@@ -257,25 +244,12 @@ for (match in matches_odota) {
       prefix_incids <- prefix_incids %>%
         add_row(
           !!!base_row,
-          prefix_name = "Sacrificial (Team)",
+          prefix_name = "Sacrificial",
           cond = if (is.null(picks)) {
-            FALSE
+            NA
           } else {
             picks %>%
               filter(team == filter(picks, hero_id == player$hero_id)$team) %>%
-              slice_min(order_by = order, n = 1) %>%
-              pull(hero_id) == player$hero_id
-          }
-        )
-      
-      prefix_incids <- prefix_incids %>%
-        add_row(
-          !!!base_row,
-          prefix_name = "Sacrificial (Overall)",
-          cond = if (is.null(picks)) {
-            FALSE
-          } else {
-            picks %>%
               slice_min(order_by = order, n = 1) %>%
               pull(hero_id) == player$hero_id
           }
