@@ -36,6 +36,22 @@ suffix_incids <- data.frame(
 i <- 1
 for (match in matches_odota) {
   print(i)
+  max_voicelines <- match$chat %>% 
+    bind_rows() %>%
+    filter(slot < 10) %>%
+    mutate(
+      player_id = sapply(
+        slot, 
+        function(x) match$players[[x + 1]]$account_id
+      )
+    ) %>%
+    filter(type == "chatwheel") %>%
+    filter(!key %in% c(1:358, 1000:138999)) %>%
+    group_by(player_id) %>%
+    summarise(count = n()) %>%
+    slice_max(order_by = count, n = 1, with_ties = TRUE) %>%
+    pull(player_id)
+  
   for (player in match$players) {
     if (player$account_id %in% players$player_id) {
       base_row <- list2(
@@ -98,7 +114,6 @@ for (match in matches_odota) {
       
       # the Divine Thief
       ## +25% in games where any player steals a Divine Rapier
-      ## Check if any player has rapier in inventory and purchase_rapier = 0 or null
       suffix_incids <- suffix_incids %>% 
         add_row(
           !!!base_row,
@@ -125,6 +140,12 @@ for (match in matches_odota) {
       
       # the Loquacious
       ## +10% in games where the player uses the most voice lines
+      suffix_incids <- suffix_incids %>% 
+        add_row(
+          !!!base_row,
+          suffix_name = "the Loquacious",
+          cond = player$account_id %in% max_voicelines
+        )
       
       # the Mule
       ## +20% in games where the player ends the game with items in every slot 
@@ -241,7 +262,7 @@ for (match in matches_odota) {
   }
   
   i <- i + 1
-  rm(match, player, base_row)
+  rm(match, player, max_voicelines, base_row)
 }
 
 i <- 1
