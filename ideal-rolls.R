@@ -5,7 +5,7 @@ library(tidyverse)
 
 # Get data
 league_id <- 15728
-teams_elim <- c(7391077, 8244493, 8254400, 8894818)
+teams_elim <- scan("data/teams_elim.csv", quiet = TRUE)
 players <- get_player_data(league_id) %>% filter(!(team_id %in% teams_elim))
 teams <- get_team_data(league_id)
 stats <- read_csv("results/all_stats.csv")
@@ -75,7 +75,7 @@ for (player_id in players$player_id) {
   player_totals <- player_stats %>%
     left_join(player_prefix, by = "player_id") %>%
     left_join(player_suffix, by = "player_id") %>%
-    summarise(
+    reframe(
       average = sum(average * (1 + prefix_bonus + suffix_bonus)),
       stddev = sqrt(sum(stddev^2)) * 
         (1 + unique(prefix_bonus) + unique(suffix_bonus))
@@ -133,5 +133,4 @@ ideal_rolls <- players %>%
   select(-player_id) %>%
   arrange(desc(average))
 
-# Calculate the role-wise ideal rolls
-ideal_rolls %>% group_split(player_role)
+write_csv(x = ideal_rolls, file = "results/ideal_rolls.csv")
